@@ -1,5 +1,10 @@
 'use client'
 
+// Компонент временно отключён от сцены (не подключается в BrickSphere.tsx):
+// ни один отрезок не становится активным, а неиспользованные отрезки,
+// схлопнутые в начальную точку у полюса сферы, видны белой точкой. Причина
+// не найдена, починка вынесена в отдельную задачу.
+
 import { Segment, Segments, type SegmentObject } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef, type RefObject } from 'react'
