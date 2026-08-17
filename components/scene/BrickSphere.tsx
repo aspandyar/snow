@@ -9,6 +9,8 @@ import { материалКирпича, наведение, сфера } from '
 import { подтянуть, цельСмещения } from '@/lib/hover/displacement'
 import { размерыКирпича, разложитьКирпичи } from '@/lib/layout/bricks'
 
+import Trajectories from './Trajectories'
+
 export default function BrickSphere() {
   const ссылка = useRef<InstancedMesh>(null)
   const кирпичи = useMemo(() => разложитьКирпичи(сфера), [])
@@ -64,20 +66,23 @@ export default function BrickSphere() {
   })
 
   return (
-    <instancedMesh ref={ссылка} args={[undefined!, undefined!, кирпичи.length]}>
-      <RoundedBoxGeometry
-        args={[размеры.ширина, размеры.высота, размеры.толщина]}
-        radius={размеры.толщина * материалКирпича.фаска}
-        smoothness={материалКирпича.гладкостьФаски}
-      />
-      <meshPhysicalMaterial
-        color={материалКирпича.цвет}
-        roughness={материалКирпича.шероховатость}
-        metalness={материалКирпича.металличность}
-        sheen={материалКирпича.контурноеСвечение}
-        sheenRoughness={материалКирпича.шероховатостьСвечения}
-        sheenColor={материалКирпича.цветСвечения}
-      />
-    </instancedMesh>
+    <group>
+      <instancedMesh ref={ссылка} args={[undefined!, undefined!, кирпичи.length]}>
+        <RoundedBoxGeometry
+          args={[размеры.ширина, размеры.высота, размеры.толщина]}
+          radius={размеры.толщина * материалКирпича.фаска}
+          smoothness={материалКирпича.гладкостьФаски}
+        />
+        <meshPhysicalMaterial
+          color={материалКирпича.цвет}
+          roughness={материалКирпича.шероховатость}
+          metalness={материалКирпича.металличность}
+          sheen={материалКирпича.контурноеСвечение}
+          sheenRoughness={материалКирпича.шероховатостьСвечения}
+          sheenColor={материалКирпича.цветСвечения}
+        />
+      </instancedMesh>
+      <Trajectories кирпичи={кирпичи} смещения={смещения} />
+    </group>
   )
 }
