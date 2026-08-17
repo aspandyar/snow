@@ -37,11 +37,13 @@ export default function BrickSphere() {
         radius={размеры.толщина * материалКирпича.фаска}
         smoothness={материалКирпича.гладкостьФаски}
       />
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         color={материалКирпича.цвет}
         roughness={материалКирпича.шероховатость}
         metalness={материалКирпича.металличность}
-        flatShading
+        sheen={материалКирпича.контурноеСвечение}
+        sheenRoughness={материалКирпича.шероховатостьСвечения}
+        sheenColor={материалКирпича.цветСвечения}
       />
     </instancedMesh>
   )
