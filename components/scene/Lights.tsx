@@ -6,6 +6,11 @@ export default function Lights() {
   return (
     <>
       <ambientLight intensity={свет.рассеянный} />
+      <directionalLight
+        position={свет.солнце.положение}
+        intensity={свет.солнце.яркость}
+        color={свет.солнце.цвет}
+      />
       <pointLight
         position={[0, 0, 0]}
         intensity={свет.точечный.яркость}
