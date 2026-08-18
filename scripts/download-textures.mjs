@@ -80,7 +80,7 @@ await mkdir(ВЫХОД, { recursive: true })
 for (const набор of НАБОРЫ) await добыть(набор)
 
 await writeFile(
-  path.join(ВЫХОД, 'ИСТОЧНИКИ.md'),
+  path.join(ВЫХОД, 'SOURCES.md'),
   [
     '# Откуда взяты текстуры',
     '',
