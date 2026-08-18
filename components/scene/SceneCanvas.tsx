@@ -6,6 +6,7 @@ import { Canvas } from '@react-three/fiber'
 import BrickAxes from './BrickAxes'
 import BrickSphere from './BrickSphere'
 import Lights from './Lights'
+import Snowfield from './Snowfield'
 import { сцена } from '@/lib/config'
 
 export default function SceneCanvas() {
@@ -14,6 +15,7 @@ export default function SceneCanvas() {
       <color attach="background" args={[сцена.фон]} />
       <Lights />
       <BrickSphere />
+      <Snowfield />
       <BrickAxes />
       <OrbitControls />
     </Canvas>
