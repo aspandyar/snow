@@ -1,11 +1,14 @@
 'use client'
 
-import { useMemo } from 'react'
-import { PlaneGeometry } from 'three'
+import { useLayoutEffect, useMemo } from 'react'
+import { useThree } from '@react-three/fiber'
+import { useTexture } from '@react-three/drei'
+import { NoColorSpace, PlaneGeometry, RepeatWrapping, SRGBColorSpace } from 'three'
 
-import { материалСнега, рельеф } from '@/lib/config'
+import { материалСнега, рельеф, текстуры } from '@/lib/config'
 import { локальныеВМировые } from '@/lib/terrain/height'
 import { высотаСцены } from '@/lib/terrain/scene-height'
+import { числоПовторов } from '@/lib/textures/tiling'
 
 export default function Snowfield() {
   const геометрия = useMemo(() => {
@@ -25,13 +28,49 @@ export default function Snowfield() {
     return г
   }, [])
 
+  const карты = useTexture({
+    map: текстуры.земля.цвет,
+    normalMap: текстуры.земля.нормали,
+    roughnessMap: текстуры.земля.шероховатость,
+  })
+  const { gl } = useThree()
+
+  useLayoutEffect(() => {
+    const повторов = числоПовторов(рельеф.размер, текстуры.земля.метраж)
+
+    for (const карта of [карты.map, карты.normalMap, карты.roughnessMap]) {
+      карта.wrapS = RepeatWrapping
+      карта.wrapT = RepeatWrapping
+      карта.repeat.set(повторов, повторов)
+
+      // Анизотропная фильтрация — ПЕРВОЕ, что нужно включать при мыле.
+      // Камера смотрит на снег скользяще, почти вдоль поверхности, и без
+      // неё земля мылится независимо от разрешения карты: проблема не в
+      // количестве пикселей, а в том, как они усредняются вдоль вытянутой
+      // в перспективе ячейки. Значение берётся из возможностей видеокарты:
+      // запрошенное сверх поддерживаемого молча игнорируется.
+      карта.anisotropy = gl.capabilities.getMaxAnisotropy()
+
+      карта.needsUpdate = true
+    }
+
+    // Цветовая карта декодируется как sRGB, остальные обязаны остаться
+    // линейными. Если пропустить нормали через sRGB, освещение поедет
+    // едва заметно и повсеместно — а искать причину будут в свете.
+    карты.map.colorSpace = SRGBColorSpace
+    карты.normalMap.colorSpace = NoColorSpace
+    карты.roughnessMap.colorSpace = NoColorSpace
+  }, [карты, gl])
+
   return (
     // Четверть оборота вокруг X кладёт плоскость горизонтально.
     // Знак отрицательный — именно он даёт мировую z равной минус
     // локальной y, что учтено в локальныеВМировые.
     <mesh geometry={геометрия} rotation-x={-Math.PI / 2} receiveShadow>
       <meshStandardMaterial
-        color={материалСнега.цвет}
+        map={карты.map}
+        normalMap={карты.normalMap}
+        roughnessMap={карты.roughnessMap}
         roughness={материалСнега.шероховатость}
         metalness={материалСнега.металличность}
       />
