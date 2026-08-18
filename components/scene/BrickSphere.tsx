@@ -64,7 +64,7 @@ export default function BrickSphere() {
   })
 
   return (
-    <instancedMesh ref={ссылка} args={[undefined!, undefined!, кирпичи.length]}>
+    <instancedMesh ref={ссылка} args={[undefined!, undefined!, кирпичи.length]} castShadow>
       <RoundedBoxGeometry
         args={[размеры.ширина, размеры.высота, размеры.толщина]}
         radius={размеры.толщина * материалКирпича.фаска}
