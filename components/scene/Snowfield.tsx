@@ -1,9 +1,9 @@
 'use client'
 
-import { useLayoutEffect, useMemo } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { useThree } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
-import { NoColorSpace, PlaneGeometry, RepeatWrapping, SRGBColorSpace } from 'three'
+import { NoColorSpace, RepeatWrapping, SRGBColorSpace, type PlaneGeometry } from 'three'
 
 import { материалСнега, рельеф, текстуры } from '@/lib/config'
 import { локальныеВМировые } from '@/lib/terrain/height'
@@ -24,8 +24,24 @@ const КАРТЫ_ЗЕМЛИ = {
 }
 
 export default function Snowfield() {
-  const геометрия = useMemo(() => {
-    const г = new PlaneGeometry(рельеф.размер, рельеф.размер, рельеф.сегментов, рельеф.сегментов)
+  const геометрия = useRef<PlaneGeometry>(null)
+
+  // Вершины поднимаются по функции высоты после создания геометрии.
+  //
+  // Геометрия объявлена в разметке, а не построена императивно и передана
+  // свойством. Это принципиально: R3F убирает за собой только то, что
+  // создал сам. Императивно созданная сетка на 148 тысяч вершин оставалась
+  // бы в видеопамяти после каждого размонтирования — в сборке незаметно,
+  // а в разработке строгий режим и горячая перезагрузка повторяют цикл
+  // снова и снова, память кончается, контекст WebGL рвётся, и сцена
+  // начинает мигать: появляется и гаснет.
+  //
+  // Освобождать её вручную в очистке эффекта тоже нельзя: строгий режим
+  // размонтирует и монтирует заново, а useMemo возвращает ТОТ ЖЕ объект —
+  // уже освобождённый, и сцена остаётся пустой.
+  useLayoutEffect(() => {
+    const г = геометрия.current
+    if (!г) return
     const позиции = г.attributes.position
 
     for (let i = 0; i < позиции.count; i++) {
@@ -34,11 +50,11 @@ export default function Snowfield() {
       // мировой вертикалью.
       позиции.setZ(i, высотаСцены(x, z))
     }
+    позиции.needsUpdate = true
 
     // Нормали пересчитываются после смещения: без этого вся земля
     // освещается как плоский лист и рельеф не читается вовсе.
     г.computeVertexNormals()
-    return г
   }, [])
 
   const карты = useTexture(КАРТЫ_ЗЕМЛИ)
@@ -75,7 +91,11 @@ export default function Snowfield() {
     // Четверть оборота вокруг X кладёт плоскость горизонтально.
     // Знак отрицательный — именно он даёт мировую z равной минус
     // локальной y, что учтено в локальныеВМировые.
-    <mesh geometry={геометрия} rotation-x={-Math.PI / 2} receiveShadow>
+    <mesh rotation-x={-Math.PI / 2} receiveShadow>
+      <planeGeometry
+        ref={геометрия}
+        args={[рельеф.размер, рельеф.размер, рельеф.сегментов, рельеф.сегментов]}
+      />
       <meshStandardMaterial
         map={карты.map}
         normalMap={карты.normalMap}
