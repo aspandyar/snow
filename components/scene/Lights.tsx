@@ -2,7 +2,9 @@
 
 import { свет } from '@/lib/config'
 
-export default function Lights() {
+// Рассеянный свет и солнце принадлежат сцене и остаются на месте, даже
+// когда сфера поднимается над равниной.
+export function ВнешнийСвет() {
   return (
     <>
       <ambientLight intensity={свет.рассеянный} />
@@ -10,7 +12,24 @@ export default function Lights() {
         position={свет.солнце.положение}
         intensity={свет.солнце.яркость}
         color={свет.солнце.цвет}
+        castShadow
+        shadow-mapSize-width={свет.солнце.картаТени}
+        shadow-mapSize-height={свет.солнце.картаТени}
+        shadow-camera-left={-свет.солнце.областьТени}
+        shadow-camera-right={свет.солнце.областьТени}
+        shadow-camera-top={свет.солнце.областьТени}
+        shadow-camera-bottom={-свет.солнце.областьТени}
       />
+    </>
+  )
+}
+
+// Точечный источник и самосветящийся шарик принадлежат сфере: у точечного
+// ограничена дальность (лежит в конфиге), и он обязан ехать вместе со
+// сферой наверх, иначе она погаснет изнутри.
+export function ВнутреннийСвет() {
+  return (
+    <>
       <pointLight
         position={[0, 0, 0]}
         intensity={свет.точечный.яркость}
