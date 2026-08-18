@@ -10,6 +10,19 @@ import { локальныеВМировые } from '@/lib/terrain/height'
 import { высотаСцены } from '@/lib/terrain/scene-height'
 import { числоПовторов } from '@/lib/textures/tiling'
 
+/** Набор путей к картам вынесен на уровень модуля намеренно.
+ *
+ *  Литерал внутри компонента создавал бы новый объект на каждой
+ *  отрисовке. useTexture получал бы новый ключ, заново приостанавливал
+ *  дерево через Suspense, компонент пересобирался — и так по кругу.
+ *  В сети это видно как пятнадцать запросов вместо трёх, а на экране —
+ *  как пустая сцена: отрисовка не доходит до конца ни разу. */
+const КАРТЫ_ЗЕМЛИ = {
+  map: текстуры.земля.цвет,
+  normalMap: текстуры.земля.нормали,
+  roughnessMap: текстуры.земля.шероховатость,
+}
+
 export default function Snowfield() {
   const геометрия = useMemo(() => {
     const г = new PlaneGeometry(рельеф.размер, рельеф.размер, рельеф.сегментов, рельеф.сегментов)
@@ -28,11 +41,7 @@ export default function Snowfield() {
     return г
   }, [])
 
-  const карты = useTexture({
-    map: текстуры.земля.цвет,
-    normalMap: текстуры.земля.нормали,
-    roughnessMap: текстуры.земля.шероховатость,
-  })
+  const карты = useTexture(КАРТЫ_ЗЕМЛИ)
   const { gl } = useThree()
 
   useLayoutEffect(() => {
