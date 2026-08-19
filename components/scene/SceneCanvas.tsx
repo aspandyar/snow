@@ -6,13 +6,19 @@ import { Canvas } from '@react-three/fiber'
 import BrickAxes from './BrickAxes'
 import BrickSphere from './BrickSphere'
 import { ВнешнийСвет, ВнутреннийСвет } from './Lights'
+import Sky from './Sky'
 import Snowfield from './Snowfield'
 import { сцена } from '@/lib/config'
 
 export default function SceneCanvas() {
   return (
     <Canvas shadows camera={{ position: сцена.камера.позиция, fov: сцена.камера.полеЗрения }}>
-      <color attach="background" args={[сцена.фон]} />
+      {/* Заливка фона (<color attach="background">) сюда не возвращается:
+          она и панорама неба спорят за один и тот же слот фона сцены, и
+          заливка либо перекроет панораму, либо будет перекрыта ею — в
+          обоих случаях одна из них лишняя. Цвет сцена.фон остаётся
+          подложкой страницы в app/layout.tsx до первого кадра WebGL. */}
+      <Sky />
       <ВнешнийСвет />
       <Snowfield />
       {/* Внутренний свет едет вместе со сферой: оба принадлежат объекту,
