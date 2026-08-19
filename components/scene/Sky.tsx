@@ -2,7 +2,7 @@
 
 import { Environment } from '@react-three/drei'
 
-import { небо } from '@/lib/config'
+import { дымка, небо } from '@/lib/config'
 
 /**
  * Панорама неба: одновременно фон сцены и источник окружающего света.
@@ -15,12 +15,15 @@ import { небо } from '@/lib/config'
  */
 export default function Sky() {
   return (
-    <Environment
-      files={небо.панорама}
-      background
-      backgroundIntensity={небо.яркостьФона}
-      environmentIntensity={небо.яркостьОсвещения}
-      backgroundBlurriness={небо.размытие}
-    />
+    <>
+      <Environment
+        files={небо.панорама}
+        background
+        backgroundIntensity={небо.яркостьФона}
+        environmentIntensity={небо.яркостьОсвещения}
+        backgroundBlurriness={небо.размытие}
+      />
+      <fogExp2 attach="fog" args={[дымка.цвет, дымка.плотность]} />
+    </>
   )
 }
