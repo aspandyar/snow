@@ -5,6 +5,7 @@ import { Canvas } from '@react-three/fiber'
 
 import BrickAxes from './BrickAxes'
 import BrickSphere from './BrickSphere'
+import GroundFog from './GroundFog'
 import { ВнешнийСвет, ВнутреннийСвет } from './Lights'
 import Sky from './Sky'
 import Snowfield from './Snowfield'
@@ -21,6 +22,7 @@ export default function SceneCanvas() {
       <Sky />
       <ВнешнийСвет />
       <Snowfield />
+      <GroundFog />
       {/* Внутренний свет едет вместе со сферой: оба принадлежат объекту,
           а не сцене, и должны подниматься на одну высоту. */}
       <group position={[0, сцена.высотаПарения, 0]}>
