@@ -1,13 +1,23 @@
 'use client'
 
-import { RoundedBoxGeometry } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { RoundedBoxGeometry, useTexture } from '@react-three/drei'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useLayoutEffect, useMemo, useRef } from 'react'
-import { InstancedMesh, Matrix4, Sphere, Vector3 } from 'three'
+import { InstancedMesh, Matrix4, NoColorSpace, RepeatWrapping, Sphere, Vector2, Vector3 } from 'three'
 
-import { материалКирпича, наведение, сфера } from '@/lib/config'
+import { материалКирпича, наведение, сфера, текстуры } from '@/lib/config'
 import { подтянуть, цельСмещения } from '@/lib/hover/displacement'
 import { размерыКирпича, разложитьКирпичи } from '@/lib/layout/bricks'
+import { числоПовторов } from '@/lib/textures/tiling'
+
+/** Набор путей вынесен на уровень модуля по той же причине, что и в
+ *  Snowfield: литерал внутри компонента создавал бы новый объект на
+ *  каждой отрисовке, useTexture получал бы новый ключ и заново
+ *  приостанавливал дерево через Suspense — компонент пересобирался бы
+ *  по кругу, а сцена не дорисовывалась до конца. */
+const КАРТЫ_КИРПИЧА = {
+  normalMap: текстуры.кирпич.нормали,
+}
 
 export default function BrickSphere() {
   const ссылка = useRef<InstancedMesh>(null)
@@ -34,6 +44,16 @@ export default function BrickSphere() {
   const сфераЛуча = useMemo(() => new Sphere(new Vector3(0, 0, 0), сфера.радиус), [])
   const косинусГраницы = useMemo(() => Math.cos(наведение.угловойРадиус), [])
 
+  const карты = useTexture(КАРТЫ_КИРПИЧА)
+  const { gl } = useThree()
+
+  // Двумерный вектор силы рельефа: в конфиге одно число, но normalScale
+  // материала применяет его к обеим осям карты одинаково.
+  const силаРельефа = useMemo(
+    () => new Vector2(текстуры.кирпич.сила, текстуры.кирпич.сила),
+    [],
+  )
+
   // Все рабочие объекты выделяются один раз. Создавать вектор или матрицу
   // внутри кадра — значит выбрасывать шестьдесят объектов в секунду
   // сборщику мусора, а он останавливает кадр в непредсказуемый момент.
@@ -46,6 +66,25 @@ export default function BrickSphere() {
   useLayoutEffect(() => {
     смещения.current.fill(0)
   }, [кирпичи])
+
+  useLayoutEffect(() => {
+    // Повтор считается от ширины кирпича, а не от стороны плоскости:
+    // кирпич мелкий, и повтор в три метра (как у земли) растянул бы одну
+    // текстуру на десяток кирпичей.
+    const повторов = числоПовторов(размеры.ширина, текстуры.кирпич.метраж)
+
+    карты.normalMap.wrapS = RepeatWrapping
+    карты.normalMap.wrapT = RepeatWrapping
+    карты.normalMap.repeat.set(повторов, повторов)
+    карты.normalMap.anisotropy = gl.capabilities.getMaxAnisotropy()
+
+    // Карта нормалей обязана остаться линейной. Пропустить её через sRGB —
+    // значит увести освещение едва заметно и повсеместно, а искать причину
+    // будут в свете, а не в текстуре.
+    карты.normalMap.colorSpace = NoColorSpace
+
+    карты.normalMap.needsUpdate = true
+  }, [карты, gl, размеры.ширина])
 
   // Приоритет по умолчанию. Любой приоритет больше нуля отключает
   // автоматическую отрисовку в R3F, и экран чернеет без единой ошибки
@@ -94,6 +133,8 @@ export default function BrickSphere() {
         sheen={материалКирпича.контурноеСвечение}
         sheenRoughness={материалКирпича.шероховатостьСвечения}
         sheenColor={материалКирпича.цветСвечения}
+        normalMap={карты.normalMap}
+        normalScale={силаРельефа}
       />
     </instancedMesh>
   )
