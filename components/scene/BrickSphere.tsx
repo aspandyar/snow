@@ -1,13 +1,23 @@
 'use client'
 
-import { RoundedBoxGeometry } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { RoundedBoxGeometry, useTexture } from '@react-three/drei'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useLayoutEffect, useMemo, useRef } from 'react'
-import { InstancedMesh, Matrix4, Sphere, Vector3 } from 'three'
+import { InstancedMesh, Matrix4, NoColorSpace, RepeatWrapping, Sphere, Vector2, Vector3 } from 'three'
 
-import { материалКирпича, наведение, сфера } from '@/lib/config'
+import { материалКирпича, наведение, сфера, текстуры } from '@/lib/config'
 import { подтянуть, цельСмещения } from '@/lib/hover/displacement'
 import { размерыКирпича, разложитьКирпичи } from '@/lib/layout/bricks'
+import { числоПовторов } from '@/lib/textures/tiling'
+
+/** Набор путей вынесен на уровень модуля по той же причине, что и в
+ *  Snowfield: литерал внутри компонента создавал бы новый объект на
+ *  каждой отрисовке, useTexture получал бы новый ключ и заново
+ *  приостанавливал дерево через Suspense — компонент пересобирался бы
+ *  по кругу, а сцена не дорисовывалась до конца. */
+const КАРТЫ_КИРПИЧА = {
+  normalMap: текстуры.кирпич.нормали,
+}
 
 export default function BrickSphere() {
   const ссылка = useRef<InstancedMesh>(null)
@@ -23,20 +33,58 @@ export default function BrickSphere() {
   // аналитически. Луч по самим инстансам перебирал бы все 506 копий по
   // полторы сотни треугольников — семьдесят пять тысяч проверок на
   // каждое движение мыши, а их до ста двадцати в секунду.
+  // Невидимая гладкая сфера для луча. Её центр НЕ задаётся числом, а
+  // берётся из мировой позиции самого меша каждый кадр.
+  //
+  // Раньше он был жёстко в начале координат, и это сломалось молча, когда
+  // сфера уехала в группу на высоту парения: невидимая сфера осталась под
+  // землёй, луч перестал в неё попадать, наведение умерло. Ни тесты, ни
+  // сборка этого не видят — математика отклонения покрыта, а привязка к
+  // мировым координатам нет. Пусть центр следует за мешем сам.
   const сфераЛуча = useMemo(() => new Sphere(new Vector3(0, 0, 0), сфера.радиус), [])
   const косинусГраницы = useMemo(() => Math.cos(наведение.угловойРадиус), [])
+
+  const карты = useTexture(КАРТЫ_КИРПИЧА)
+  const { gl } = useThree()
+
+  // Двумерный вектор силы рельефа: в конфиге одно число, но normalScale
+  // материала применяет его к обеим осям карты одинаково.
+  const силаРельефа = useMemo(
+    () => new Vector2(текстуры.кирпич.сила, текстуры.кирпич.сила),
+    [],
+  )
 
   // Все рабочие объекты выделяются один раз. Создавать вектор или матрицу
   // внутри кадра — значит выбрасывать шестьдесят объектов в секунду
   // сборщику мусора, а он останавливает кадр в непредсказуемый момент.
   const точка = useRef(new Vector3())
   const направлениеНаКурсор = useRef(new Vector3())
+  const центрМира = useRef(new Vector3())
   const матрица = useRef(new Matrix4())
   const положение = useRef(new Vector3())
 
   useLayoutEffect(() => {
     смещения.current.fill(0)
   }, [кирпичи])
+
+  useLayoutEffect(() => {
+    // Повтор считается от ширины кирпича, а не от стороны плоскости:
+    // кирпич мелкий, и повтор в три метра (как у земли) растянул бы одну
+    // текстуру на десяток кирпичей.
+    const повторов = числоПовторов(размеры.ширина, текстуры.кирпич.метраж)
+
+    карты.normalMap.wrapS = RepeatWrapping
+    карты.normalMap.wrapT = RepeatWrapping
+    карты.normalMap.repeat.set(повторов, повторов)
+    карты.normalMap.anisotropy = gl.capabilities.getMaxAnisotropy()
+
+    // Карта нормалей обязана остаться линейной. Пропустить её через sRGB —
+    // значит увести освещение едва заметно и повсеместно, а искать причину
+    // будут в свете, а не в текстуре.
+    карты.normalMap.colorSpace = NoColorSpace
+
+    карты.normalMap.needsUpdate = true
+  }, [карты, gl, размеры.ширина])
 
   // Приоритет по умолчанию. Любой приоритет больше нуля отключает
   // автоматическую отрисовку в R3F, и экран чернеет без единой ошибки
@@ -45,10 +93,18 @@ export default function BrickSphere() {
     const меш = ссылка.current
     if (!меш) return
 
+    меш.getWorldPosition(центрМира.current)
+    сфераЛуча.center.copy(центрМира.current)
+
     состояние.raycaster.setFromCamera(состояние.pointer, состояние.camera)
     const попал = состояние.raycaster.ray.intersectSphere(сфераЛуча, точка.current)
+
+    // Точка касания приходит в мировых координатах, а нормали кирпичей
+    // посчитаны вокруг начала координат группы. Без вычитания центра
+    // направление считалось бы от начала мира, и отклонение уезжало бы
+    // тем сильнее, чем выше поднята сфера.
     const направление = попал
-      ? направлениеНаКурсор.current.copy(точка.current).normalize()
+      ? направлениеНаКурсор.current.copy(точка.current).sub(центрМира.current).normalize()
       : null
 
     for (let i = 0; i < кирпичи.length; i++) {
@@ -77,6 +133,8 @@ export default function BrickSphere() {
         sheen={материалКирпича.контурноеСвечение}
         sheenRoughness={материалКирпича.шероховатостьСвечения}
         sheenColor={материалКирпича.цветСвечения}
+        normalMap={карты.normalMap}
+        normalScale={силаРельефа}
       />
     </instancedMesh>
   )
