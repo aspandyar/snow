@@ -8,6 +8,7 @@ import BrickSphere from './BrickSphere'
 import GroundFog from './GroundFog'
 import { ВнешнийСвет, ВнутреннийСвет } from './Lights'
 import Ridges from './Ridges'
+import ScrollDriver from './ScrollDriver'
 import Sky from './Sky'
 import Snowfield from './Snowfield'
 import { сцена } from '@/lib/config'
@@ -15,6 +16,12 @@ import { сцена } from '@/lib/config'
 export default function SceneCanvas() {
   return (
     <Canvas shadows camera={{ position: сцена.камера.позиция, fov: сцена.камера.полеЗрения }}>
+      {/* Толкатель прогресса ставится ПЕРВЫМ: обработчики useFrame при
+          одинаковом приоритете вызываются в порядке подписки, и всё, что
+          читает прогресс прокрутки из хранилища (камера на следующем
+          этапе), должно получать уже посчитанное на этом кадре число, а
+          не прошлое. Сам он ничего не рисует. */}
+      <ScrollDriver />
       {/* Заливка фона (<color attach="background">) сюда не возвращается:
           она и панорама неба спорят за один и тот же слот фона сцены, и
           заливка либо перекроет панораму, либо будет перекрыта ею — в
