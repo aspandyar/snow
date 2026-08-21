@@ -5,10 +5,12 @@ import { useThree } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { NoColorSpace, RepeatWrapping, SRGBColorSpace, type PlaneGeometry } from 'three'
 
-import { материалСнега, рельеф, текстуры } from '@/lib/config'
+import { материалСнега, рельеф, следы, текстуры } from '@/lib/config'
 import { локальныеВМировые } from '@/lib/terrain/height'
 import { высотаСцены } from '@/lib/terrain/scene-height'
 import { числоПовторов } from '@/lib/textures/tiling'
+
+import { useКартаСледов } from './useTrail'
 
 /** Набор путей к картам вынесен на уровень модуля намеренно.
  *
@@ -55,10 +57,17 @@ export default function Snowfield() {
     // Нормали пересчитываются после смещения: без этого вся земля
     // освещается как плоский лист и рельеф не читается вовсе.
     г.computeVertexNormals()
+
+    // Карта затенения читается из канала uv1, которого у плоскости нет:
+    // PlaneGeometry заводит только uv. Без этой строки aoMap молча не
+    // применяется — ошибки нет, эффекта тоже. Развёртка та же самая,
+    // поэтому канал просто указывает на существующий атрибут.
+    if (!г.hasAttribute('uv1')) г.setAttribute('uv1', г.attributes.uv)
   }, [])
 
   const карты = useTexture(КАРТЫ_ЗЕМЛИ)
   const { gl } = useThree()
+  const картаСледов = useКартаСледов()
 
   useLayoutEffect(() => {
     const повторов = числоПовторов(рельеф.размер, текстуры.земля.метраж)
@@ -102,6 +111,23 @@ export default function Snowfield() {
         roughnessMap={карты.roughnessMap}
         roughness={материалСнега.шероховатость}
         metalness={материалСнега.металличность}
+        // Формула встроенного смещения: normal * (карта.r * displacementScale
+        // + displacementBias). Холст следов белый в состоянии покоя (r=1) и
+        // темнеет под курсором (r→0) — см. useTrail.ts. Бias подобран так,
+        // чтобы белый давал ровно ноль (следы.глубина − следы.глубина = 0) и
+        // равнина оставалась на уровне, поднятом функцией высоты в
+        // useLayoutEffect выше, а не вздувалась целиком под displacementScale.
+        // Тёмный пиксель даёт (0 − следы.глубина) — смещение ПРОТИВ нормали,
+        // то есть вмятину, а не бугор.
+        // Тот же холст вторым назначением — картой затенения. Смещение
+        // двигает вершины, но не пересчитывает нормали, и на однородном
+        // белом снегу вмятина остаётся неразличимой: светотень не
+        // меняется. Затенение даёт её напрямую.
+        aoMap={картаСледов}
+        aoMapIntensity={следы.затенение}
+        displacementMap={картаСледов}
+        displacementScale={следы.глубина}
+        displacementBias={-следы.глубина}
       />
     </mesh>
   )
