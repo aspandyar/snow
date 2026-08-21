@@ -1,13 +1,14 @@
 'use client'
 
-import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
 import BrickAxes from './BrickAxes'
 import BrickSphere from './BrickSphere'
+import CameraRig from './CameraRig'
 import GroundFog from './GroundFog'
 import { ВнешнийСвет, ВнутреннийСвет } from './Lights'
 import Ridges from './Ridges'
+import ScrollDriver from './ScrollDriver'
 import Sky from './Sky'
 import Snowfield from './Snowfield'
 import { сцена } from '@/lib/config'
@@ -15,6 +16,16 @@ import { сцена } from '@/lib/config'
 export default function SceneCanvas() {
   return (
     <Canvas shadows camera={{ position: сцена.камера.позиция, fov: сцена.камера.полеЗрения }}>
+      {/* Толкатель прогресса ставится ПЕРВЫМ: обработчики useFrame при
+          одинаковом приоритете вызываются в порядке подписки, и всё, что
+          читает прогресс прокрутки из хранилища (камера ниже), должно
+          получать уже посчитанное на этом кадре число, а не прошлое.
+          Сам он ничего не рисует. */}
+      <ScrollDriver />
+      {/* Камера ставится сразу за толкателем прогресса и по той же
+          причине: она подписывается на useFrame следующей и обязана
+          читать уже посчитанный на этом кадре прогресс. */}
+      <CameraRig />
       {/* Заливка фона (<color attach="background">) сюда не возвращается:
           она и панорама неба спорят за один и тот же слот фона сцены, и
           заливка либо перекроет панораму, либо будет перекрыта ею — в
@@ -36,7 +47,6 @@ export default function SceneCanvas() {
         <ВнутреннийСвет />
       </group>
       <BrickAxes />
-      <OrbitControls target={[0, сцена.высотаПарения, 0]} />
     </Canvas>
   )
 }
