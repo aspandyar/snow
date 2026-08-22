@@ -121,14 +121,45 @@ const РУССКИЙ = {
       заголовок: 'Цифры',
       подзаголовок: 'Чего это стоит',
       абзацы: [
-        'Здесь будут честные замеры: сколько стоит каждый эффект в кадре, где проходит ' +
-          'граница на слабой машине и что отключается первым.',
-        'Пока их нет — и писать сюда правдоподобные числа вместо измеренных было бы ' +
-          'ровно тем враньём, от которого страница защищена везде остальным.',
+        'Это единственные числа на странице, которые не считаются на месте. Всё ' +
+          'остальное рисуется теми же функциями, что и сцена, и врать не может по ' +
+          'построению. Производительность так не выведешь — её можно только измерить, и ' +
+          'измерить на конкретной машине, в конкретном окне, конкретной сборкой. Поэтому ' +
+          'рядом с числами стоят условия: без них «семь миллисекунд» не значит ничего.',
+        'Мерится время всего кадра: обход пятисот кирпичей, отрисовка, цепочка ' +
+          'постобработки. После каждого кадра из буфера читается один пиксель — это ' +
+          'заставляет дождаться видеокарты. Без этого в отчёт попадало бы только время, ' +
+          'за которое процессор успел отдать команды, а настоящая работа уезжала бы в ' +
+          'следующий кадр.',
+        'Показана медиана и хвост — девяносто пятый процентиль. Одной медианы мало: ' +
+          'рывок раз в двадцать кадров зритель чувствует, а медиана его не показывает ' +
+          'вовсе. Среднее не годится тем более — один кадр со сборкой мусора тянет его ' +
+          'вверх на десятки процентов.',
+        'Разброс между точками невелик, и это ожидаемо: кладка рисуется одним вызовом на ' +
+          'все пятьсот шесть кирпичей, а цепочка постобработки работает по всему кадру ' +
+          'независимо от того, что в нём происходит. Дороже всего выходит раскрытие — там ' +
+          'к отрисовке добавляется пересчёт матриц у сотни кирпичей на каждый кадр.',
       ],
-      подпись: 'Раздел ждёт замеров',
+      подпись: 'Время кадра в миллисекундах: медиана и хвост',
     },
   ] as Раздел[],
+
+  замеры: {
+    точки: {
+      общий: 'общий план',
+      облёт: 'облёт',
+      раскрытие: 'раскрытие',
+      разгорание: 'разгорание',
+    },
+    условия: 'Снято',
+    окно: (ш: number, в: number, п: number) =>
+      `окно ${ш} × ${в} при плотности ${п}, то есть ${ш * п} × ${в * п} точек`,
+    сборка: 'собранная версия, не сервер разработки',
+    вызовы: 'вызовов отрисовки',
+    треугольники: 'треугольников в кадре',
+    текстуры: 'текстур',
+    программы: 'шейдерных программ',
+  },
 
   подвал: {
     исходники: 'Исходники',
@@ -242,14 +273,45 @@ const АНГЛИЙСКИЙ: typeof РУССКИЙ = {
       заголовок: 'Numbers',
       подзаголовок: 'What it costs',
       абзацы: [
-        'Honest measurements go here: what each effect costs per frame, where the line ' +
-          'falls on a weak machine, and what gets turned off first.',
-        'They do not exist yet - and writing plausible numbers instead of measured ones ' +
-          'would be exactly the kind of lying this page is built to avoid everywhere else.',
+        'These are the only numbers on the page that are not computed on the spot. ' +
+          'Everything else is drawn by the same functions that compute the scene and ' +
+          'cannot lie by construction. Performance cannot be derived from code - it can ' +
+          'only be measured, and measured on a particular machine, in a particular window, ' +
+          'from a particular build. So the conditions sit next to the numbers: without ' +
+          'them "seven milliseconds" means nothing.',
+        'What is timed is the whole frame: walking five hundred bricks, drawing, and the ' +
+          'effect chain. After each frame one pixel is read back from the buffer, which ' +
+          'forces a wait for the GPU. Without it the report would only cover the time the ' +
+          'CPU took to submit commands, and the real work would slide into the next frame.',
+        'The median is shown alongside the tail - the ninety-fifth percentile. The median ' +
+          'alone is not enough: a hitch once every twenty frames is felt by the viewer and ' +
+          'invisible to the median. An average is worse still - a single frame with a ' +
+          'garbage collection drags it up by tens of percent.',
+        'The spread between points is small, as expected: the masonry draws in one call ' +
+          'for all five hundred and six bricks, and the effect chain works over the whole ' +
+          'frame regardless of what is in it. The opening costs the most - there the ' +
+          'matrices of a hundred bricks are recomputed every frame on top of the drawing.',
       ],
-      подпись: 'This section is waiting for measurements',
+      подпись: 'Frame time in milliseconds: median and tail',
     },
   ] as Раздел[],
+
+  замеры: {
+    точки: {
+      общий: 'establishing shot',
+      облёт: 'orbit',
+      раскрытие: 'opening',
+      разгорание: 'glow',
+    },
+    условия: 'Measured',
+    окно: (ш: number, в: number, п: number) =>
+      `${ш} × ${в} window at density ${п}, that is ${ш * п} × ${в * п} device pixels`,
+    сборка: 'production build, not the dev server',
+    вызовы: 'draw calls',
+    треугольники: 'triangles per frame',
+    текстуры: 'textures',
+    программы: 'shader programs',
+  },
 
   подвал: {
     исходники: 'Source',
