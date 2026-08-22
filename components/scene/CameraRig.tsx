@@ -5,8 +5,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { CatmullRomCurve3, Vector3 } from 'three'
 
 import { прокрутка, траектория } from '@/lib/config'
-import { порогНахлёста } from '@/lib/scroll/progress'
-import { прогрессСцены } from '@/lib/transition/flash'
+import { конецСцены, прогрессСцены } from '@/lib/transition/flash'
 import { useХранилищеПрокрутки } from '@/lib/scroll/store'
 
 /** Камера, ведомая прокруткой.
@@ -49,7 +48,8 @@ export default function CameraRig() {
   // обязана доиграть весь путь ДО него, иначе самое интересное пройдёт за
   // страницей — так и было, пока это не связали формулой.
   const порог = useMemo(
-    () => порогНахлёста(прокрутка.нахлёстВЭкранах, прокрутка.экранов),
+    () =>
+      конецСцены(прокрутка.доляСцены, прокрутка.нахлёстВЭкранах, прокрутка.экранов),
     [],
   )
 

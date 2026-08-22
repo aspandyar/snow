@@ -15,8 +15,7 @@ import {
   текстуры,
   траектория,
 } from '@/lib/config'
-import { порогНахлёста } from '@/lib/scroll/progress'
-import { прогрессСцены } from '@/lib/transition/flash'
+import { конецСцены, прогрессСцены } from '@/lib/transition/flash'
 import { подтянуть, цельСмещения } from '@/lib/hover/displacement'
 import { размерыКирпича, разложитьКирпичи } from '@/lib/layout/bricks'
 import {
@@ -115,7 +114,8 @@ export default function BrickSphere() {
   // Тот же порог, что и у камеры: раскрытие обязано доиграть до того, как
   // лендинг закроет кадр.
   const порог = useMemo(
-    () => порогНахлёста(прокрутка.нахлёстВЭкранах, прокрутка.экранов),
+    () =>
+      конецСцены(прокрутка.доляСцены, прокрутка.нахлёстВЭкранах, прокрутка.экранов),
     [],
   )
 
