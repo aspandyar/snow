@@ -5,9 +5,14 @@ import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { useMemo, useRef } from 'react'
 import { Color, Vector3 } from 'three'
 
-import { вспышка, свечение, сцена } from '@/lib/config'
+import { вспышка, прокрутка, раскрытие, свечение, сцена } from '@/lib/config'
 import { ЭффектВспышки } from '@/lib/transition/FlashEffect'
-import { перегревВспышки, силаВспышки } from '@/lib/transition/flash'
+import {
+  конецСцены,
+  началоВспышки,
+  перегревВспышки,
+  силаВспышки,
+} from '@/lib/transition/flash'
 import { useХранилищеПрокрутки } from '@/lib/scroll/store'
 
 /** Обёртка эффекта вспышки в дерево R3F.
@@ -26,6 +31,17 @@ function Вспышка() {
   const центрМира = useMemo(() => new Vector3(0, сцена.высотаПарения, 0), [])
   const проекция = useMemo(() => new Vector3(), [])
 
+  // Свет трогается ровно тогда, когда проём в кладке раскрылся. Число не
+  // задаётся, а считается — иначе оно опять разъедется с раскрытием.
+  const начало = useMemo(
+    () =>
+      началоВспышки(
+        раскрытие.конец,
+        конецСцены(прокрутка.доляСцены, прокрутка.нахлёстВЭкранах, прокрутка.экранов),
+      ),
+    [],
+  )
+
   useMemo(() => {
     эффект.переменная('tint').value = new Color(сцена.фон)
     эффект.переменная('reach').value = вспышка.дальность
@@ -34,7 +50,7 @@ function Вспышка() {
 
   useFrame(() => {
     const { прогресс } = useХранилищеПрокрутки.getState()
-    const сила = силаВспышки(прогресс, вспышка.начало, вспышка.конец)
+    const сила = силаВспышки(прогресс, начало, вспышка.конец)
 
     эффект.переменная('amount').value = сила
     эффект.переменная('overshoot').value = перегревВспышки(сила)
