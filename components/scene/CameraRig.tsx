@@ -2,9 +2,10 @@
 
 import { useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { CatmullRomCurve3, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { прокрутка, траектория } from '@/lib/config'
+import { прокрутка } from '@/lib/config'
+import { путьЦели, путьПозиции } from '@/lib/scroll/path'
 import { конецСцены, прогрессСцены } from '@/lib/transition/flash'
 import { useХранилищеПрокрутки } from '@/lib/scroll/store'
 
@@ -23,19 +24,6 @@ import { useХранилищеПрокрутки } from '@/lib/scroll/store'
  *  траектории, так что до первого кадра useFrame картинка уже верная. */
 export default function CameraRig() {
   const { camera } = useThree()
-
-  // Кривые строятся ОДИН РАЗ, а не в кадре: пересборка кривой
-  // Катмулла-Рома каждый кадр заново считает таблицу длин дуги, которая
-  // нужна getPointAt для равномерного (по длине пути, а не по номеру
-  // точки) движения камеры.
-  const путьПозиции = useMemo(
-    () => new CatmullRomCurve3(траектория.позиции.map(([x, y, z]) => new Vector3(x, y, z))),
-    [],
-  )
-  const путьЦели = useMemo(
-    () => new CatmullRomCurve3(траектория.цели.map(([x, y, z]) => new Vector3(x, y, z))),
-    [],
-  )
 
   // Векторы под результат getPointAt выделяются один раз вне кадра, а не
   // создаются заново на каждый вызов: сборщик мусора останавливает кадр
