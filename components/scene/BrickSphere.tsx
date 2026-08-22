@@ -5,7 +5,18 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { InstancedMesh, Matrix4, NoColorSpace, Quaternion, RepeatWrapping, Sphere, Vector2, Vector3 } from 'three'
 
-import { материалКирпича, наведение, раскрытие, сфера, сцена, текстуры, траектория } from '@/lib/config'
+import {
+  материалКирпича,
+  наведение,
+  прокрутка,
+  раскрытие,
+  сфера,
+  сцена,
+  текстуры,
+  траектория,
+} from '@/lib/config'
+import { порогНахлёста } from '@/lib/scroll/progress'
+import { прогрессСцены } from '@/lib/transition/flash'
 import { подтянуть, цельСмещения } from '@/lib/hover/displacement'
 import { размерыКирпича, разложитьКирпичи } from '@/lib/layout/bricks'
 import {
@@ -101,6 +112,13 @@ export default function BrickSphere() {
     return { отъезды, подъёмы, оси }
   }, [кирпичи])
 
+  // Тот же порог, что и у камеры: раскрытие обязано доиграть до того, как
+  // лендинг закроет кадр.
+  const порог = useMemo(
+    () => порогНахлёста(прокрутка.нахлёстВЭкранах, прокрутка.экранов),
+    [],
+  )
+
   const карты = useTexture(КАРТЫ_КИРПИЧА)
   const { gl } = useThree()
 
@@ -170,7 +188,11 @@ export default function BrickSphere() {
     // Прогресс читается через getState(), а не хуком: хук перерисовывал
     // бы компонент на каждый пиксель прокрутки, а здесь всё императивно.
     const { прогресс } = useХранилищеПрокрутки.getState()
-    const доля = доляРаскрытия(прогресс, раскрытие.начало, раскрытие.конец)
+    const доля = доляРаскрытия(
+      прогрессСцены(прогресс, порог),
+      раскрытие.начало,
+      раскрытие.конец,
+    )
     const силаКурсора = силаНаведения(доля)
 
     for (let i = 0; i < кирпичи.length; i++) {
