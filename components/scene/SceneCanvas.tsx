@@ -5,8 +5,10 @@ import { Canvas } from '@react-three/fiber'
 import BrickAxes from './BrickAxes'
 import BrickSphere from './BrickSphere'
 import CameraRig from './CameraRig'
+import FrameGate from './FrameGate'
 import GroundFog from './GroundFog'
 import { ВнешнийСвет, ВнутреннийСвет } from './Lights'
+import Постобработка from './Postprocessing'
 import Ridges from './Ridges'
 import ScrollDriver from './ScrollDriver'
 import Sky from './Sky'
@@ -22,6 +24,8 @@ export default function SceneCanvas() {
           получать уже посчитанное на этом кадре число, а не прошлое.
           Сам он ничего не рисует. */}
       <ScrollDriver />
+      {/* Останавливает кадры, когда лендинг закрыл холст целиком. */}
+      <FrameGate />
       {/* Камера ставится сразу за толкателем прогресса и по той же
           причине: она подписывается на useFrame следующей и обязана
           читать уже посчитанный на этом кадре прогресс. */}
@@ -47,6 +51,10 @@ export default function SceneCanvas() {
         <ВнутреннийСвет />
       </group>
       <BrickAxes />
+      {/* Постобработка ставится ПОСЛЕДНЕЙ: она забирает готовый кадр
+          сцены. Состав цепочки задаётся один раз и не меняется всю
+          прокрутку — см. Postprocessing.tsx. */}
+      <Постобработка />
     </Canvas>
   )
 }
