@@ -118,6 +118,36 @@ const РУССКИЙ = {
     },
     {
       номер: '06',
+      заголовок: 'Горизонт',
+      подзаголовок: 'Из чего сделана даль',
+      абзацы: [
+        'Горы — не сетка, а три замкнутых кольца: цилиндр без дна и крышки, у которого ' +
+          'верхний край поднят профилем, а нижний утоплен под снег. Смотрим мы изнутри. ' +
+          'Раньше на их месте стояли плоскости вдоль одной стороны — и работало это ровно ' +
+          'пока камера смотрела оттуда же. Стоило ей облететь сферу, как в кадр попадал ' +
+          'открытый край равнины.',
+        'Профиль считается по УГЛУ, а не по длине дуги. Кольцо замкнуто: угол ноль и угол ' +
+          'два пи — одна точка. Считай мы от дуги, в ней сошлись бы два разных значения ' +
+          'высоты, и по всему кольцу прошла бы вертикальная ступенька.',
+        'Гребень — верхняя огибающая колоколов, а не их сумма. Сумма кладёт на ' +
+          'пересечении двух гор купол и сливает их в насыпь; максимум оставляет там ' +
+          'излом — то самое ребро, которым гора отличается от холма. Поверх крупных ' +
+          'вершин садятся отроги, и каждый поднимается над склоном под собой, поэтому на ' +
+          'ровном горизонте бугорков не появляется.',
+        'До огибающей пробовали шум — дважды. Обычный менял горе высоту, оставляя тот же ' +
+          'гладкий колокол: узел шума приходился реже, чем ширина горы. Хребтовый, где ' +
+          'излом рождается на нулях, дал двенадцать вершин на весь круг — меньше двух на ' +
+          'гору, и разглядеть их было нечем. Оба раза это выяснилось счётом, а не глазом.',
+        'Снег — полторы тысячи точек и ОДИН вызов отрисовки. Падение, повтор и качание ' +
+          'живут в вершинном шейдере, наружу в кадр уходит одна переменная — время. Куб ' +
+          'со снегом привязан к камере остатком от деления: снежинка, ушедшая ниже дна, ' +
+          'тем же выражением оказывается под потолком, поэтому снег не кончается и при ' +
+          'этом не едет за зрителем приклеенным.',
+      ],
+      подпись: 'Тонкой линией — крупные вершины, толстой — гребень с отрогами',
+    },
+    {
+      номер: '07',
       заголовок: 'Цифры',
       подзаголовок: 'Чего это стоит',
       абзацы: [
@@ -270,6 +300,37 @@ const АНГЛИЙСКИЙ: typeof РУССКИЙ = {
     },
     {
       номер: '06',
+      заголовок: 'The horizon',
+      подзаголовок: 'What the distance is made of',
+      абзацы: [
+        'The mountains are not a mesh but three closed rings: an open cylinder with its ' +
+          'top edge raised by a profile and its bottom sunk below the snow, seen from the ' +
+          'inside. Before them stood planes along one side, and that worked exactly as ' +
+          'long as the camera looked from that side. The moment it flew around the ' +
+          'sphere, the open edge of the plain came into frame.',
+        'The profile is a function of ANGLE, not arc length. A ring closes on itself: ' +
+          'angle zero and angle two pi are the same point. From arc length two different ' +
+          'heights would meet there, and a vertical step would run down the whole ring.',
+        'The ridgeline is the upper envelope of the bells, not their sum. A sum puts a ' +
+          'dome where two mountains overlap and merges them into one mound; a maximum ' +
+          'leaves a crease there — the ridge that separates a mountain from a hill. Spurs ' +
+          'then sit on the big peaks, each rising above the slope beneath it, so flat ' +
+          'horizon stays flat.',
+        'Noise was tried twice before the envelope. Plain noise only changed a ' +
+          "mountain's height and left the same smooth bell: its nodes fell further apart " +
+          'than a mountain is wide. Ridged noise, where the crease is born at zero ' +
+          'crossings, gave twelve peaks around the entire ring — fewer than two per ' +
+          'mountain, invisible at this distance. Both times counting found it, not the eye.',
+        'The snow is fifteen hundred points and ONE draw call. Falling, wrapping and sway ' +
+          'live in the vertex shader; one value crosses over per frame, time. The box of ' +
+          'snow is pinned to the camera by a modulo: a flake that leaves through the floor ' +
+          'reappears under the ceiling by the same expression, so the snow never runs out ' +
+          'and never rides along with the viewer.',
+      ],
+      подпись: 'Thin line — the big peaks, thick — the ridgeline with spurs',
+    },
+    {
+      номер: '07',
       заголовок: 'Numbers',
       подзаголовок: 'What it costs',
       абзацы: [
