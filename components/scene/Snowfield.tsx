@@ -91,9 +91,19 @@ export default function Snowfield() {
     // Цветовая карта декодируется как sRGB, остальные обязаны остаться
     // линейными. Если пропустить нормали через sRGB, освещение поедет
     // едва заметно и повсеместно — а искать причину будут в свете.
+    // Правило react-hooks/immutability здесь бьёт мимо. Оно защищает от
+    // правки того, что вернул хук, — потому что React такой правки не
+    // видит и не перерисует. Но useTexture возвращает не состояние, а
+    // объект three: живой ресурс видеопамяти из общего кеша drei.
+    // Настраивать его ПОСЛЕ загрузки — единственный способ, который есть
+    // в three, а о переменах ему сообщают через needsUpdate, а не через
+    // React. Отключено точечно, одной строкой на файл, чтобы правило
+    // продолжало работать на всём остальном.
+    /* eslint-disable react-hooks/immutability */
     карты.map.colorSpace = SRGBColorSpace
     карты.normalMap.colorSpace = NoColorSpace
     карты.roughnessMap.colorSpace = NoColorSpace
+    /* eslint-enable react-hooks/immutability */
   }, [карты, gl])
 
   return (
