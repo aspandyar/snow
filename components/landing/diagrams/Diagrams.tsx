@@ -38,7 +38,7 @@ const ШИРИНА = 640
 const ВЫСОТА = 200
 const ПОЛЕ = 28
 
-function Рамка({ children }: { children: React.ReactNode }) {
+function Frame({ children }: { children: React.ReactNode }) {
   return (
     <svg
       viewBox={`0 0 ${ШИРИНА} ${ВЫСОТА}`}
@@ -52,7 +52,7 @@ function Рамка({ children }: { children: React.ReactNode }) {
 }
 
 /** Кирпичей в каждом кольце, от полюса к полюсу. */
-export function СхемаКладки() {
+export function DiagramMasonry() {
   const кольца = useMemo(
     () =>
       Array.from({ length: сфера.колец }, (_, i) => ({
@@ -66,7 +66,7 @@ export function СхемаКладки() {
   const шаг = (ШИРИНА - ПОЛЕ * 2) / кольца.length
 
   return (
-    <Рамка>
+    <Frame>
       {кольца.map((к) => {
         const в = ((ВЫСОТА - ПОЛЕ * 2) * к.количество) / макс
         return (
@@ -91,12 +91,12 @@ export function СхемаКладки() {
       <text x={ПОЛЕ} y={ПОЛЕ} fill="var(--чернила)" fontSize="13">
         {макс} шт.
       </text>
-    </Рамка>
+    </Frame>
   )
 }
 
 /** Профиль высоты вдоль линии через равнину. */
-export function СхемаРавнины() {
+export function DiagramPlain() {
   const точки = useMemo(() => {
     const половина = рельеф.размер / 2
     const n = 240
@@ -119,7 +119,7 @@ export function СхемаРавнины() {
     .join(' ')
 
   return (
-    <Рамка>
+    <Frame>
       <path d={путь} fill="none" stroke="var(--чернила)" strokeWidth="1.5" />
       <text x={ПОЛЕ} y={ПОЛЕ} fill="var(--чернила)" fontSize="13">
         {макс.toFixed(1)} м
@@ -127,7 +127,7 @@ export function СхемаРавнины() {
       <text x={ПОЛЕ} y={ВЫСОТА - ПОЛЕ + 16} fill="var(--чернила)" fontSize="13">
         {мин.toFixed(1)} м
       </text>
-    </Рамка>
+    </Frame>
   )
 }
 
@@ -136,7 +136,7 @@ export function СхемаРавнины() {
  *  Затухание — это заливка полотна белым с прозрачностью, то есть каждый
  *  кадр от следа остаётся доля (1 − затухание). За n кадров — эта доля в
  *  степени n. */
-export function СхемаСледов() {
+export function DiagramTrail() {
   const кадров = 180
   const точки = useMemo(
     () =>
@@ -160,7 +160,7 @@ export function СхемаСледов() {
   const пх = ПОЛЕ + ((ШИРИНА - ПОЛЕ * 2) * половина) / кадров
 
   return (
-    <Рамка>
+    <Frame>
       <path d={путь} fill="none" stroke="var(--чернила)" strokeWidth="1.5" />
       <line
         x1={пх}
@@ -174,7 +174,7 @@ export function СхемаСледов() {
       <text x={пх + 6} y={ПОЛЕ + 12} fill="var(--чернила)" fontSize="13">
         ½ за {Math.round(половина)} кадров
       </text>
-    </Рамка>
+    </Frame>
   )
 }
 
@@ -183,7 +183,7 @@ export function СхемаСледов() {
  *  Верхний ряд — где кольцо стоит в покое, нижний — куда оно уезжает при
  *  полном раскрытии. Видно и то, что внутри проёма не остаётся никого, и
  *  то, что кольца сгущаются к его краю. */
-export function СхемаПроёма() {
+export function DiagramAperture() {
   const ряды = useMemo(() => {
     const шагКольца = Math.PI / сфера.колец
     const углы: number[] = []
@@ -200,7 +200,7 @@ export function СхемаПроёма() {
   const низ = ВЫСОТА - ПОЛЕ - 20
 
   return (
-    <Рамка>
+    <Frame>
       <rect
         x={ПОЛЕ}
         y={низ - 10}
@@ -229,7 +229,7 @@ export function СхемаПроёма() {
       <text x={ПОЛЕ} y={низ + 22} fill="var(--чернила)" fontSize="13">
         раскрыто · проём слева пуст
       </text>
-    </Рамка>
+    </Frame>
   )
 }
 
@@ -237,7 +237,7 @@ export function СхемаПроёма() {
  *
  *  Отметки считаются теми же функциями, что задают их сцене, поэтому
  *  схема не может разойтись с происходящим. */
-export function СхемаПрокрутки() {
+export function DiagramScroll() {
   const отметки = useMemo(() => {
     const центр = new Vector3(0, сцена.высотаПарения, 0)
     const конСцены = конецСцены(
@@ -264,7 +264,7 @@ export function СхемаПрокрутки() {
   ]
 
   return (
-    <Рамка>
+    <Frame>
       <rect
         x={ПОЛЕ}
         y={полоса - 10}
@@ -322,7 +322,7 @@ export function СхемаПрокрутки() {
       >
         1
       </text>
-    </Рамка>
+    </Frame>
   )
 }
 
@@ -338,7 +338,7 @@ export function СхемаПрокрутки() {
  *  Толстой — итоговый гребень с отрогами. Разница между ними и есть весь
  *  ответ на вопрос, чем гора отличается от насыпи: пересечения колоколов
  *  дают изломы, которых у одиночного колокола быть не может. */
-export function СхемаГоризонта() {
+export function DiagramHorizon() {
   const кольцо = горы.кольца[0]
   const { основа, гребень } = useMemo(() => {
     const считать = создатьГребень(кольцо.вершины, горы.дробление, горы.зерно + кольцо.радиус)
@@ -364,7 +364,7 @@ export function СхемаГоризонта() {
       .join(' ')
 
   return (
-    <Рамка>
+    <Frame>
       <path
         d={путь(основа)}
         fill="none"
@@ -375,11 +375,11 @@ export function СхемаГоризонта() {
       <text x={ПОЛЕ} y={ПОЛЕ} fill="var(--чернила)" fontSize="13">
         {макс.toFixed(0)} м
       </text>
-    </Рамка>
+    </Frame>
   )
 }
 
-export function СхемаЦифр() {
+export function DiagramNumbers() {
   const язык = useЯзык((с) => с.язык)
   const подписи = ТЕКСТЫ[язык].замеры
 
@@ -389,7 +389,7 @@ export function СхемаЦифр() {
   const низ = ВЫСОТА - ПОЛЕ - 14
 
   return (
-    <Рамка>
+    <Frame>
       {ЗАМЕРЫ.точки.map((т, i) => {
         const x = ПОЛЕ + i * шаг + шаг / 2
         const вМедианы = ((низ - ПОЛЕ) * т.медиана) / макс
@@ -423,16 +423,16 @@ export function СхемаЦифр() {
         )
       })}
       <line x1={ПОЛЕ} y1={низ} x2={ШИРИНА - ПОЛЕ} y2={низ} stroke="var(--чернила)" strokeWidth="1" />
-    </Рамка>
+    </Frame>
   )
 }
 
 export const СХЕМЫ = [
-  СхемаКладки,
-  СхемаРавнины,
-  СхемаСледов,
-  СхемаПроёма,
-  СхемаПрокрутки,
-  СхемаГоризонта,
-  СхемаЦифр,
+  DiagramMasonry,
+  DiagramPlain,
+  DiagramTrail,
+  DiagramAperture,
+  DiagramScroll,
+  DiagramHorizon,
+  DiagramNumbers,
 ]

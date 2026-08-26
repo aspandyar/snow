@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+/** Настроек нет намеренно, и это стоит написать явно: пустой файл выглядит
+ *  недоделанным, и следующий разработчик начнёт искать, что сюда положить.
+ *  Всё, что влияет на картинку, живёт в lib/config.ts; всё, что влияет на
+ *  сборку, устраивает нас по умолчанию. */
+const настройки: NextConfig = {}
 
-export default nextConfig;
+export default настройки

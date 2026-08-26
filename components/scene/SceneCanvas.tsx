@@ -8,8 +8,8 @@ import CameraRig from './CameraRig'
 import FrameGate from './FrameGate'
 import Measure from './Measure'
 import GroundFog from './GroundFog'
-import { ВнешнийСвет, ВнутреннийСвет } from './Lights'
-import Постобработка from './Postprocessing'
+import { OuterLight, InnerLight } from './Lights'
+import Postprocessing from './Postprocessing'
 import Mountains from './Mountains'
 import ScrollDriver from './ScrollDriver'
 import Sky from './Sky'
@@ -41,7 +41,7 @@ export default function SceneCanvas() {
           обоих случаях одна из них лишняя. Цвет сцена.фон остаётся
           подложкой страницы в app/layout.tsx до первого кадра WebGL. */}
       <Sky />
-      <ВнешнийСвет />
+      <OuterLight />
       <Snowfield />
       <GroundFog />
       {/* За краем равнины: замкнутым кольцом, а не стеной с одной
@@ -58,13 +58,13 @@ export default function SceneCanvas() {
           а не сцене, и должны подниматься на одну высоту. */}
       <group position={[0, сцена.высотаПарения, 0]}>
         <BrickSphere />
-        <ВнутреннийСвет />
+        <InnerLight />
       </group>
       <BrickAxes />
-      {/* Постобработка ставится ПОСЛЕДНЕЙ: она забирает готовый кадр
+      {/* Postprocessing ставится ПОСЛЕДНЕЙ: она забирает готовый кадр
           сцены. Состав цепочки задаётся один раз и не меняется всю
           прокрутку — см. Postprocessing.tsx. */}
-      <Постобработка />
+      <Postprocessing />
     </Canvas>
   )
 }

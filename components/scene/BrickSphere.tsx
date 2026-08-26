@@ -156,6 +156,15 @@ export default function BrickSphere() {
     // текстуру на десяток кирпичей.
     const повторов = числоПовторов(размеры.ширина, текстуры.кирпич.метраж)
 
+    // Правило react-hooks/immutability здесь бьёт мимо. Оно защищает от
+    // правки того, что вернул хук, — потому что React такой правки не
+    // видит и не перерисует. Но useTexture возвращает не состояние, а
+    // объект three: живой ресурс видеопамяти из общего кеша drei.
+    // Настраивать его ПОСЛЕ загрузки — единственный способ, который есть
+    // в three, а о переменах ему сообщают через needsUpdate, а не через
+    // React. Отключено точечно, одной строкой на файл, чтобы правило
+    // продолжало работать на всём остальном.
+    /* eslint-disable react-hooks/immutability */
     карты.normalMap.wrapS = RepeatWrapping
     карты.normalMap.wrapT = RepeatWrapping
     карты.normalMap.repeat.set(повторов, повторов)
@@ -167,6 +176,7 @@ export default function BrickSphere() {
     карты.normalMap.colorSpace = NoColorSpace
 
     карты.normalMap.needsUpdate = true
+    /* eslint-enable react-hooks/immutability */
   }, [карты, gl, размеры.ширина])
 
   // Приоритет по умолчанию. Любой приоритет больше нуля отключает

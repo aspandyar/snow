@@ -5,9 +5,11 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  // Пропуски eslint-config-next задаются заново: список ниже ПЕРЕКРЫВАЕТ
+  // его собственный, а не дополняет, поэтому умолчания приходится
+  // повторять целиком. Уберёшь строку — линтер полезет в сборку.
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    // Умолчания eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",

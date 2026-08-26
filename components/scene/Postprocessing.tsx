@@ -2,7 +2,7 @@
 
 import { useFrame, useThree } from '@react-three/fiber'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { Color, Vector3 } from 'three'
 
 import { вспышка, прокрутка, свечение, сфера, сцена } from '@/lib/config'
@@ -26,7 +26,7 @@ import { useХранилищеПрокрутки } from '@/lib/scroll/store'
  *  пересобирает цепочку при смене состава и падает на сериализации
  *  объектов сцены, а режим пропуска необратим — обратно шейдер уже не
  *  собирается. Это записано ещё в первой спеке проекта. */
-function Вспышка() {
+function Flash() {
   const { camera, size } = useThree()
   const эффект = useMemo(() => new ЭффектВспышки(), [])
 
@@ -96,7 +96,7 @@ function Вспышка() {
 }
 
 /** Цепочка постобработки. Состав задаётся один раз и не меняется. */
-export default function Постобработка() {
+export default function Postprocessing() {
   return (
     <EffectComposer>
       {/* Свечение идёт ПЕРВЫМ: вспышка заливает кадр цветом подложки, и
@@ -109,7 +109,7 @@ export default function Постобработка() {
         intensity={свечение.сила}
         radius={свечение.радиус}
       />
-      <Вспышка />
+      <Flash />
     </EffectComposer>
   )
 }
