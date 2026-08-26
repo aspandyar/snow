@@ -49,7 +49,7 @@ const КАЧЕСТВО = { color: 82, 'normal-gl': 92, roughness: 82 }
 const НАСЫЩЕННОСТЬ_ЦВЕТА = 0.25
 
 /**
- * Панорама неба с polyhaven, HDRI 2K, «чистое небо» без запечённой
+ * Панорама неба с polyhaven, HDRI 1K, «чистое небо» без запечённой
  * земли: своя земля уже есть в сцене, и вторая, из панорамы, проступала
  * бы за её краем.
  *
@@ -60,7 +60,7 @@ const НАСЫЩЕННОСТЬ_ЦВЕТА = 0.25
  * и кладётся как есть.
  */
 const ПАНОРАМА = {
-  адрес: 'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/snow_field_puresky_2k.hdr',
+  адрес: 'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/snow_field_puresky_1k.hdr',
   выход: path.join(ВЫХОД, 'sky.hdr'),
 }
 
