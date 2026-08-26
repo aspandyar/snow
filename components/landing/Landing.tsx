@@ -1,6 +1,7 @@
 'use client'
 
 import { useЯзык } from '@/lib/landing/language'
+import { ЗАМЕРЫ } from '@/lib/landing/measurements'
 import { ТЕКСТЫ } from '@/lib/landing/texts'
 import { СХЕМЫ } from './diagrams/Diagrams'
 import LanguageSwitch from './LanguageSwitch'
@@ -49,6 +50,32 @@ export default function Landing() {
                 </div>
                 <figcaption className="text-sm opacity-60">{раздел.подпись}</figcaption>
               </figure>
+
+              {/* Условия замера стоят рядом с самими числами, а не в
+                  подвале: число без условий бессмысленно, и разносить их
+                  по странице значит позволить прочитать одно без другого. */}
+              {i === т.разделы.length - 1 && (
+                <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm opacity-70">
+                  <dt>{т.замеры.условия}</dt>
+                  <dd>
+                    {ЗАМЕРЫ.снято} · {ЗАМЕРЫ.видеокарта} ·{' '}
+                    {т.замеры.окно(
+                      ЗАМЕРЫ.окно.ширина,
+                      ЗАМЕРЫ.окно.высота,
+                      ЗАМЕРЫ.окно.плотность,
+                    )}{' '}
+                    · {т.замеры.сборка}
+                  </dd>
+                  <dt className="tabular-nums">{ЗАМЕРЫ.вызововОтрисовки}</dt>
+                  <dd>{т.замеры.вызовы}</dd>
+                  <dt className="tabular-nums">{ЗАМЕРЫ.треугольников.toLocaleString(язык === 'ru' ? 'ru-RU' : 'en-US')}</dt>
+                  <dd>{т.замеры.треугольники}</dd>
+                  <dt className="tabular-nums">{ЗАМЕРЫ.текстур}</dt>
+                  <dd>{т.замеры.текстуры}</dd>
+                  <dt className="tabular-nums">{ЗАМЕРЫ.программ}</dt>
+                  <dd>{т.замеры.программы}</dd>
+                </dl>
+              )}
             </section>
           )
         })}

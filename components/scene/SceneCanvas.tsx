@@ -6,6 +6,7 @@ import BrickAxes from './BrickAxes'
 import BrickSphere from './BrickSphere'
 import CameraRig from './CameraRig'
 import FrameGate from './FrameGate'
+import Measure from './Measure'
 import GroundFog from './GroundFog'
 import { ВнешнийСвет, ВнутреннийСвет } from './Lights'
 import Постобработка from './Postprocessing'
@@ -26,6 +27,9 @@ export default function SceneCanvas() {
       <ScrollDriver />
       {/* Останавливает кадры, когда лендинг закрыл холст целиком. */}
       <FrameGate />
+      {/* Замер включается только адресом ?measure и в обычном показе
+          ничего не делает. */}
+      <Measure />
       {/* Камера ставится сразу за толкателем прогресса и по той же
           причине: она подписывается на useFrame следующей и обязана
           читать уже посчитанный на этом кадре прогресс. */}
