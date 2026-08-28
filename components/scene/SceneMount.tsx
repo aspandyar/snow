@@ -7,8 +7,21 @@ import dynamic from 'next/dynamic'
 // серверную отрисовку, а там нет window, и WebGL падает при монтировании.
 // Сам вызов dynamic с ssr: false запрещён в серверных компонентах Next,
 // поэтому он обязан жить здесь, в отдельном клиентском файле.
-const SceneCanvas = dynamic(() => import('./SceneCanvas'), { ssr: false })
+// Ввозится СЦЕНА ВМЕСТЕ С ЭКРАНОМ ОЖИДАНИЯ, а не один холст: ход загрузки
+// читается из drei, и держать его снаружи значило бы тянуть всю библиотеку
+// сцены к зрителю до того, как она понадобится.
+//
+// loading закрывает первый разрыв — пока едет сам кусок сборки со сценой.
+// Внутри SceneStage закрывает второй — пока едут карты и панорама. Без
+// первого зритель несколько секунд видит пустоту ещё до того, как что-то
+// вообще начнёт грузиться.
+const SceneStage = dynamic(() => import('./SceneStage'), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0" style={{ background: 'var(--подложка)' }} />
+  ),
+})
 
 export default function SceneMount() {
-  return <SceneCanvas />
+  return <SceneStage />
 }

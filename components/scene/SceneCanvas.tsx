@@ -7,6 +7,7 @@ import BrickSphere from './BrickSphere'
 import CameraRig from './CameraRig'
 import FrameGate from './FrameGate'
 import Measure from './Measure'
+import ReadySignal from './ReadySignal'
 import GroundFog from './GroundFog'
 import { OuterLight, InnerLight } from './Lights'
 import Postprocessing from './Postprocessing'
@@ -17,7 +18,13 @@ import Snow from './Snow'
 import Snowfield from './Snowfield'
 import { сцена } from '@/lib/config'
 
-export default function SceneCanvas() {
+type Свойства = {
+  /** Зовётся один раз, когда сцена впервые нарисовала кадр. По нему
+   *  снимается заслонка ожидания — см. SceneStage.tsx. */
+  приГотовности: () => void
+}
+
+export default function SceneCanvas({ приГотовности }: Свойства) {
   return (
     <Canvas camera={{ position: сцена.камера.позиция, fov: сцена.камера.полеЗрения }}>
       {/* Толкатель прогресса ставится ПЕРВЫМ: обработчики useFrame при
@@ -31,6 +38,9 @@ export default function SceneCanvas() {
       {/* Замер включается только адресом ?measure и в обычном показе
           ничего не делает. */}
       <Measure />
+      {/* Докладывает наружу о первом нарисованном кадре. Ставится рядом с
+          замером: оба ничего не рисуют и только смотрят на сцену. */}
+      <ReadySignal приГотовности={приГотовности} />
       {/* Камера ставится сразу за толкателем прогресса и по той же
           причине: она подписывается на useFrame следующей и обязана
           читать уже посчитанный на этом кадре прогресс. */}
@@ -61,7 +71,7 @@ export default function SceneCanvas() {
         <InnerLight />
       </group>
       <BrickAxes />
-      {/* Postprocessing ставится ПОСЛЕДНЕЙ: она забирает готовый кадр
+      {/* Постобработка ставится ПОСЛЕДНЕЙ: она забирает готовый кадр
           сцены. Состав цепочки задаётся один раз и не меняется всю
           прокрутку — см. Postprocessing.tsx. */}
       <Postprocessing />
