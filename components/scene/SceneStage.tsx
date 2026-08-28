@@ -75,7 +75,9 @@ export default function SceneStage() {
             style={{ background: 'var(--чернила)', width: `${progress.toFixed(0)}%` }}
           />
         </div>
-        <p className="text-sm" style={{ color: 'var(--чернила-слабые)' }}>
+        {/* Поля и перенос по центру: на узком экране строка иначе встаёт
+            впритык к краям и читается обрезанной. */}
+        <p className="max-w-xs px-6 text-center text-sm" style={{ color: 'var(--чернила-слабые)' }}>
           {ТЕКСТЫ[язык].загрузка}
         </p>
       </div>
