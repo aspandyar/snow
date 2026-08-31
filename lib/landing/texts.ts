@@ -21,7 +21,7 @@ const РУССКИЙ = {
   /** Подпись под полосой на экране ожидания. Не «Загрузка…», а строка о
    *  том, ЧТО грузится: несколько мегабайт карт объясняют сами себя, и
    *  ожидание перестаёт выглядеть зависанием. */
-  загрузка: 'Собираем сцену: снег, небо, полтысячи кирпичей',
+  загрузка: 'Собираем сцену: снег, небо, восемь сотен кирпичей',
 
   шапка: {
     название: 'snow',
@@ -37,7 +37,7 @@ const РУССКИЙ = {
     {
       номер: '01',
       заголовок: 'Кладка',
-      подзаголовок: 'Как полтысячи кирпичей ложатся на шар',
+      подзаголовок: 'Как восемь сотен кирпичей ложатся на шар',
       абзацы: [
         'Сфера режется на кольца по широте. В каждом кольце столько кирпичей, ' +
           'сколько нужно, чтобы их ширина везде была одинаковой: длина кольца равна ' +
@@ -161,7 +161,7 @@ const РУССКИЙ = {
           'построению. Производительность так не выведешь — её можно только измерить, и ' +
           'измерить на конкретной машине, в конкретном окне, конкретной сборкой. Поэтому ' +
           'рядом с числами стоят условия: без них «семь миллисекунд» не значит ничего.',
-        'Мерится время всего кадра: обход пятисот кирпичей, отрисовка, цепочка ' +
+        'Мерится время всего кадра: обход всей кладки, отрисовка, цепочка ' +
           'постобработки. После каждого кадра из буфера читается один пиксель — это ' +
           'заставляет дождаться видеокарты. Без этого в отчёт попадало бы только время, ' +
           'за которое процессор успел отдать команды, а настоящая работа уезжала бы в ' +
@@ -170,10 +170,11 @@ const РУССКИЙ = {
           'рывок раз в двадцать кадров зритель чувствует, а медиана его не показывает ' +
           'вовсе. Среднее не годится тем более — один кадр со сборкой мусора тянет его ' +
           'вверх на десятки процентов.',
-        'Разброс между точками невелик, и это ожидаемо: кладка рисуется одним вызовом на ' +
-          'все пятьсот шесть кирпичей, а цепочка постобработки работает по всему кадру ' +
-          'независимо от того, что в нём происходит. Дороже всего выходит раскрытие — там ' +
-          'к отрисовке добавляется пересчёт матриц у сотни кирпичей на каждый кадр.',
+        'Разброс между точками невелик, и это ожидаемо: вся кладка рисуется одним ' +
+          'вызовом, сколько бы кирпичей в ней ни было, а цепочка постобработки работает ' +
+          'по всему кадру независимо от того, что в нём происходит. Дороже всего выходит ' +
+          'раскрытие — там к отрисовке добавляется пересчёт матриц у пары сотен кирпичей ' +
+          'на каждый кадр.',
       ],
       подпись: 'Время кадра в миллисекундах: медиана и хвост',
     },
@@ -203,7 +204,7 @@ const РУССКИЙ = {
 }
 
 const АНГЛИЙСКИЙ: typeof РУССКИЙ = {
-  загрузка: 'Building the scene: snow, sky, five hundred bricks',
+  загрузка: 'Building the scene: snow, sky, eight hundred bricks',
 
   шапка: {
     название: 'snow',
@@ -219,7 +220,7 @@ const АНГЛИЙСКИЙ: typeof РУССКИЙ = {
     {
       номер: '01',
       заголовок: 'Masonry',
-      подзаголовок: 'How five hundred bricks sit on a sphere',
+      подзаголовок: 'How eight hundred bricks sit on a sphere',
       абзацы: [
         'The sphere is cut into rings by latitude. Each ring holds as many bricks as it ' +
           'takes to keep their width the same everywhere: a ring is 2πR·sin θ long, and ' +
@@ -347,7 +348,7 @@ const АНГЛИЙСКИЙ: typeof РУССКИЙ = {
           'only be measured, and measured on a particular machine, in a particular window, ' +
           'from a particular build. So the conditions sit next to the numbers: without ' +
           'them "seven milliseconds" means nothing.',
-        'What is timed is the whole frame: walking five hundred bricks, drawing, and the ' +
+        'What is timed is the whole frame: walking the masonry, drawing, and the ' +
           'effect chain. After each frame one pixel is read back from the buffer, which ' +
           'forces a wait for the GPU. Without it the report would only cover the time the ' +
           'CPU took to submit commands, and the real work would slide into the next frame.',
@@ -355,10 +356,11 @@ const АНГЛИЙСКИЙ: typeof РУССКИЙ = {
           'alone is not enough: a hitch once every twenty frames is felt by the viewer and ' +
           'invisible to the median. An average is worse still - a single frame with a ' +
           'garbage collection drags it up by tens of percent.',
-        'The spread between points is small, as expected: the masonry draws in one call ' +
-          'for all five hundred and six bricks, and the effect chain works over the whole ' +
+        'The spread between points is small, as expected: the whole masonry draws in one ' +
+          'call however many bricks it holds, and the effect chain works over the whole ' +
           'frame regardless of what is in it. The opening costs the most - there the ' +
-          'matrices of a hundred bricks are recomputed every frame on top of the drawing.',
+          'matrices of a couple of hundred bricks are recomputed every frame on top of ' +
+          'the drawing.',
       ],
       подпись: 'Frame time in milliseconds: median and tail',
     },
